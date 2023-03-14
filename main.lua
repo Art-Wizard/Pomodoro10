@@ -20,7 +20,7 @@ local soundEffectRandom2 = audio.loadSound("random2.wav")
 local soundEffectBreak = audio.loadSound("break.wav")
 --debug variables
 local randomTimerCalled = false
-system.activate( "keepAwake" )
+system.setIdleTimer( false )
 
 local function startPomodoroTimer()
     print("startPomodoroTimer")
@@ -68,7 +68,7 @@ end
 -- create a function to count down the time given in minutesLeft and secondsLeft and update the display
 function updateTime()
     timeDisplay.text = string.format("%02d:%02d", minutesLeft, secondsLeft)
-    if minutesLeft == 0 and secondsLeft == 0 then  
+    if minutesLeft == 0 and secondsLeft == 0 then
         if isItPomodoroTime then
             minutesLeft = breakTime
             isItPomodoroTime = false
