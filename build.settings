@@ -1,0 +1,23 @@
+settings =
+{
+    orientation =
+    {
+        default = "portrait",    -- Initial launch orientation
+        supported = {"portrait"},  -- Table of allowed options for auto-orientation
+    },
+    splashScreen = 
+    {
+        enable = false
+    },
+    
+
+
+    android =
+    {
+        usesPermissions =
+        {
+            "android.permission.WAKE_LOCK",
+        },
+    },
+}
+    -- Child tables here

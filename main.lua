@@ -7,9 +7,25 @@ local minutesLeft = 25
 local secondsLeft = 0
 local PomodoroRunning = false
 local canItPause = false
-local timeSecond = 10 -- in milliseconds (1000 = 1 second), currently set to 10 milliseconds for testing purposes
-local timeMinute = 600 -- in milliseconds (1000 = 1 second), currently set to 600 milliseconds for testing purposes
-local hasRandomTimeHappened = false
+local timeSecond = 1000 -- in milliseconds (1000 = 1 second), currently set to 10 milliseconds for testing purposes
+local timeMinute = 60000 -- in milliseconds (1000 = 1 second), currently set to 600 milliseconds for testing purposes
+local hasRandomTimeStarted = false
+local pomodoroTimer
+local randomTimerCount = 0
+local randomTime = 0
+local soundEffectStart = audio.loadSound("start.wav")
+local soundEffectEnd = audio.loadSound("end.wav")
+local soundEffectRandom = audio.loadSound("random.wav")
+local soundEffectRandom2 = audio.loadSound("random2.wav")
+local soundEffectBreak = audio.loadSound("break.wav")
+--debug variables
+local randomTimerCalled = false
+system.activate( "keepAwake" )
+
+local function startPomodoroTimer()
+    print("startPomodoroTimer")
+    pomodoroTimer = timer.performWithDelay(timeSecond, updateTime, 0, "pomTime")
+end
 
 -- create an options button to top right on the screen to change the minutes of the pomodoro and break time
 local optionsButton = display.newText("Options", display.contentWidth - 100, 100, native.systemFont, 50)
@@ -37,7 +53,7 @@ pauseButton:setFillColor(1, 1, 1)
 
 --TODO: figure out why stopTheClock() doesn't work even when intervals are done
 -- create a function to display and count the intervals of pomodoro, and if the pomodoro intervals are done, display a "done!" message and reset everything
-local function updateInterval()
+function updateInterval()
     if currentInterval < totalIntervals then
         currentInterval = currentInterval + 1
         intervalDisplay.text = string.format("%d/%d", currentInterval, totalIntervals)
@@ -50,13 +66,8 @@ local function updateInterval()
 end
 
 -- create a function to count down the time given in minutesLeft and secondsLeft and update the display
-local function updateTime()
+function updateTime()
     timeDisplay.text = string.format("%02d:%02d", minutesLeft, secondsLeft)
-    secondsLeft = secondsLeft - 1
-    if secondsLeft < 0 then
-        secondsLeft = 59
-        minutesLeft = minutesLeft - 1
-    end
     if minutesLeft == 0 and secondsLeft == 0 then  
         if isItPomodoroTime then
             minutesLeft = breakTime
@@ -66,16 +77,21 @@ local function updateTime()
             minutesLeft = pomodoroTime
             isItPomodoroTime = true
             phaseDisplay.text = "Pomodoro Time"
-            randomTimer()
             updateInterval()
         end
-   
-    
-end
-    
+    else
+        secondsLeft = secondsLeft - 1
+        randomTimer()
+        if secondsLeft < 0 then
+            secondsLeft = 59
+            minutesLeft = minutesLeft - 1
+        end
+    end
 end
 
 local function pomoDoroSetup()
+    print ("pomoDoroSetup")
+    stopTheClock()
     minutesLeft = pomodoroTime
     secondsLeft = 0
     phaseDisplay.text = "Pomodoro Time"
@@ -84,15 +100,17 @@ local function pomoDoroSetup()
     isItPomodoroTime = true
     PomodoroRunning = true
     canItPause = true
-    randomTimer()
-    timer.performWithDelay(timeSecond, updateTime, 0, "pomTime")
+    hasRandomTimeStarted = false
+    startPomodoroTimer()
     
 end
 
 
 local function startPomodoro()
     if PomodoroRunning then
-        timer.cancel("pomTime")
+        print("stopPomodoro")
+        timer.cancel(pomodoroTimer)
+        audio.play(soundEffectEnd)
         phaseDisplay.text = "Ready"
         startButton.text = "Start"
         PomodoroRunning = false
@@ -101,6 +119,7 @@ local function startPomodoro()
     else
         print("startPomodoro")
         pomoDoroSetup()
+        audio.play(soundEffectStart)
     end
 end
 
@@ -109,12 +128,15 @@ local function pausePomodoro()
         print("pausePomodoro")
         if PomodoroRunning then
             timer.pause("pomTime")
+            audio.play(soundEffectBreak)
             phaseDisplay.text = "Paused"
             startButton.text = "Restart"
             pauseButton.text = "Resume"
             PomodoroRunning = false
         else
+            print("resumePomodoro")
             timer.resume("pomTime")
+            audio.play(soundEffectStart)
             if isItPomodoroTime then
                 phaseDisplay.text = "Pomodoro Time"
             else
@@ -127,7 +149,9 @@ local function pausePomodoro()
 end
 
 function stopTheClock()
-    timer.cancel("pomTime")
+    if pomodoroTimer ~= nil then
+         timer.cancel(pomodoroTimer)
+    end
     print ("stopTheClock")
     minutesLeft = pomodoroTime
     secondsLeft = 0
@@ -138,23 +162,27 @@ end
 -- create a function that pauses the timer randomly for 10 seconds during the pomodoro time
 function randomPause()
     print( "startingRandomPause" )
-    if isItPomodoroTime and hasRandomTimeHappened == false then
+    if isItPomodoroTime and hasRandomTimeStarted == true and randomTimerCount < 3 then
         print( "randomPauseHappened" )
-        timer.pause("pomTime")
+        print("randomTImerCount = " .. randomTimerCount)
+        timer.pause(pomodoroTimer)
+        audio.play(soundEffectRandom)
+        randomTimerCount = randomTimerCount + 1
         phaseDisplay.text = "Random Pause"
         --change the background color to red
         display.setDefault("background", 1, 0, 0)
         startButton.text = "Restart"
         pauseButton.text = "Resume"
         PomodoroRunning = false
-        timer.performWithDelay(10000, function()
+        timer.performWithDelay(timeSecond * 10, function()
             print( "randomPauseEnded" )
-            timer.resume("pomTime")
+            timer.resume(pomodoroTimer)
+            audio.play(soundEffectRandom2)
             phaseDisplay.text = "Pomodoro Time"
             startButton.text = "Stop"
             pauseButton.text = "Pause"
             PomodoroRunning = true
-            hasRandomTimeHappened = true
+            hasRandomTimeStarted = false
             --change the background color off of red
             display.setDefault("background", 0, 0, 0)
 
@@ -164,11 +192,21 @@ end
 -- TODO: figure out why the random pause is not working
 --create a function to create the random time when the random pause will happen
 function randomTimer()
-    --if 2 minutes has passed, then create a random time between 1 and 10 minutes
-    if pomodoroTime-minutesLeft >= 2 then
-        randomTime = math.random(1, 10)
+    if randomTimerCalled == false then
+        print("randomTimer called")
+        randomTimerCalled = true
+    end
+    --if 2 minutes has passed, then create a random time between 1 and end of pomodoro time
+    if  pomodoroTime - minutesLeft > 1 and minutesLeft > 2 and hasRandomTimeStarted == false then
+        hasRandomTimeStarted = true
+        print( "startingRandomTimer" )
+        randomTime = math.random(minutesLeft) * timeMinute
+        print(randomTime)
+        print(randomTime / timeMinute)
+        print( minutesLeft)
         --start a countdown timer for the randomPause function with the random time
-        timer.performWithDelay(randomTime*timeMinute, randomPause)
+        timer.performWithDelay(randomTime, randomPause)
+
     end
 end
 
