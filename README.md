@@ -1,6 +1,6 @@
 # Pomodoro10
 
-Pomodoro10 is a productivity app based on the Pomodoro Technique, with added random 10-second breaks during each Pomodoro period to help improve learning efficiency by addressing the primacy and recency effects.
+Pomodoro10 is a productivity app based on the Pomodoro Technique, with added random 10-second breaks during each Pomodoro period to help improve learning efficiency by addressing the primacy and recency effects. The app is build on [Solar2d game engine](https://github.com/solar2d/Solar2D.com) 
 
 ## Features
 
