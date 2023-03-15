@@ -1,3 +1,5 @@
+-- TODO: fix the ui and clean up the code for final build 
+
 local pomodoroTime = 25 -- in minutes
 local breakTime = 5 -- in minutes
 local totalIntervals = 4
@@ -228,7 +230,7 @@ local function options()
     -- create a text object to explain the default if nothing is entered, and fit the text to the screen
     local defaultText = display.newText("Default is 25 minutes for pomodoro and 5 minutes for break", display.contentCenterX, display.contentCenterY - 400, display.contentWidth - 100, 0, native.systemFont, 50)
     optionsGroup:insert(defaultText)
-    local optionsText = display.newText("Options", display.contentCenterX, display.contentCenterY - 300, native.systemFont, 50)
+    local optionsText = display.newText("Options", display.contentCenterX, display.contentCenterY - 300, native.systemFont, 50 )
     optionsGroup:insert(optionsText)
     local pomodoroTimeText = display.newText("Pomodoro Time", display.contentCenterX, display.contentCenterY - 200, native.systemFont, 50)
     optionsGroup:insert(pomodoroTimeText)

@@ -10,14 +10,15 @@ settings =
         enable = false
     },
     
-
-
-    android =
+    win32 =
     {
-        usesPermissions =
-        {
-            "android.permission.WAKE_LOCK",
-        },
+        singleInstance = false,
+    },
+ window =
+    {
+        defaultViewWidth = 640,
+        defaultViewHeight = 960,
+         resizable = true,
     },
 }
     -- Child tables here
