@@ -33,3 +33,19 @@ To install Pomodoro10 on your Android device, follow these steps:
 3. Click "Start" to begin your first Pomodoro period
 4. Follow the on-screen prompts for 10-second breaks and 5-minute breaks
 5. Repeat as needed to complete your tasks
+
+## Open Source
+
+Pomodoro10 is an open-source project, and your contributions are welcome to help improve and expand its features.
+
+### How to Contribute
+
+1. Fork the repository on GitHub
+2. Clone your fork to your local machine
+3. Create a new branch for your feature or bugfix
+4. Make your changes and test them thoroughly
+5. Commit your changes and push them to your fork
+6. Create a pull request on the original repository with a clear description of your changes
+
+Please ensure that your code follows the existing style and structure of the project. Your pull requests will be reviewed, and any feedback will be provided to help refine the changes before they are merged into the main codebase.
+
