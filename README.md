@@ -21,7 +21,7 @@ Pomodoro10 addresses these biases by disrupting the traditional flow of learning
 
 To install Pomodoro10 on your Android device, follow these steps:
 
-1. Download the latest Android APK from the provided link
+1. Download the latest Android APK from the Github repository file list
 2. Locate the downloaded APK file in your device's file manager
 3. Tap on the APK file to start the installation process
 4. Follow the on-screen prompts to complete the installation
