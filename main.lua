@@ -9,8 +9,8 @@ local minutesLeft = 25
 local secondsLeft = 0
 local PomodoroRunning = false
 local canItPause = false
-local timeSecond = 1000 -- in milliseconds (1000 = 1 second), currently set to 10 milliseconds for testing purposes
-local timeMinute = 60000 -- in milliseconds (1000 = 1 second), currently set to 600 milliseconds for testing purposes
+local timeSecond = 1000 -- in milliseconds (1000 = 1 second)
+local timeMinute = 60000 -- in milliseconds (1000 = 1 second)
 local hasRandomTimeStarted = false
 local pomodoroTimer
 local randomTimerCount = 0
@@ -52,8 +52,6 @@ startButton:setFillColor(1, 1, 1)
 local pauseButton = display.newText("Pause", display.contentCenterX, display.contentHeight - 300, native.systemFont, 50)
 pauseButton:setFillColor(1, 1, 1)
 
-
---TODO: figure out why stopTheClock() doesn't work even when intervals are done
 -- create a function to display and count the intervals of pomodoro, and if the pomodoro intervals are done, display a "done!" message and reset everything
 function updateInterval()
     if currentInterval < totalIntervals then
@@ -191,7 +189,6 @@ function randomPause()
         end)
     end
 end
--- TODO: figure out why the random pause is not working
 --create a function to create the random time when the random pause will happen
 function randomTimer()
     if randomTimerCalled == false then
