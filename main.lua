@@ -20,8 +20,12 @@ local soundEffectEnd = audio.loadSound("end.wav")
 local soundEffectRandom = audio.loadSound("random.wav")
 local soundEffectRandom2 = audio.loadSound("random2.wav")
 local soundEffectBreak = audio.loadSound("break.wav")
+local uiContentWidth = display.contentWidth * 0.3
+local uiContentHeight = display.contentHeight * 0.15
+
 --debug variables
 local randomTimerCalled = false
+
 system.setIdleTimer( false )
 
 local function startPomodoroTimer()
@@ -30,26 +34,26 @@ local function startPomodoroTimer()
 end
 
 -- create an options button to top right on the screen to change the minutes of the pomodoro and break time
-local optionsButton = display.newText("Options", display.contentWidth - 100, 100, native.systemFont, 50)
+local optionsButton = display.newText("Options", display.contentWidth - uiContentWidth, uiContentHeight, native.systemFont, 50)
 
 -- create a text object to display time
 local timeDisplay = display.newText(string.format("%02d:%02d", minutesLeft, secondsLeft), display.contentCenterX, display.contentCenterY, native.systemFont, 100)
 timeDisplay:setFillColor(1, 1, 1)
 
 -- create a text object to display the current interval out of the total intervals
-local intervalDisplay = display.newText(string.format("%d/%d", currentInterval, totalIntervals), display.contentCenterX, display.contentCenterY + 300, native.systemFont, 50)
+local intervalDisplay = display.newText(string.format("%d/%d", currentInterval, totalIntervals), display.contentCenterX, display.contentCenterY + uiContentHeight, native.systemFont, 50)
 intervalDisplay:setFillColor(0.7, 0.7, 0.7)
 
 -- create a text object to display the current phase of the pomodoro
-local phaseDisplay = display.newText("Ready", display.contentCenterX, display.contentCenterY - 300, native.systemFont, 50)
+local phaseDisplay = display.newText("Ready", display.contentCenterX, display.contentCenterY - uiContentHeight, native.systemFont, 50)
 phaseDisplay:setFillColor(0.7, 0.7, 0.7)
 
 -- create a start button
-local startButton = display.newText("Start", display.contentCenterX, display.contentHeight - 100, native.systemFont, 50)
+local startButton = display.newText("Start", display.contentCenterX, display.contentHeight - uiContentHeight * 0.5, native.systemFont, 50)
 startButton:setFillColor(1, 1, 1)
 
 -- create a pause button above the start button
-local pauseButton = display.newText("Pause", display.contentCenterX, display.contentHeight - 300, native.systemFont, 50)
+local pauseButton = display.newText("Pause", display.contentCenterX, display.contentHeight - uiContentHeight, native.systemFont, 50)
 pauseButton:setFillColor(1, 1, 1)
 
 -- create a function to display and count the intervals of pomodoro, and if the pomodoro intervals are done, display a "done!" message and reset everything
@@ -88,6 +92,63 @@ function updateTime()
         end
     end
 end
+
+-- create a text wrap function to wrap the text in the options menu
+function wrapText(text, x, y, font, fontSize, maxWidth, lineSpacing)
+    local words = {}
+    local group = display.newGroup()
+
+    for word in text:gmatch("%S+") do
+        table.insert(words, word)
+    end
+
+    local line = ""
+    local lineCount = 1
+    local yOffset = fontSize * lineSpacing
+
+    for i = 1, #words do
+        local tempLine = line .. " " .. words[i]
+        local tempWidth = display.newText(tempLine, 0, 0, font, fontSize).width
+
+        if tempWidth < maxWidth then
+            line = tempLine
+        else
+            local newText = display.newText({
+                text = line,
+                x = x,
+                y = y + yOffset * (lineCount - 1),
+                font = font,
+                fontSize = fontSize,
+                align = "left"
+            })
+
+            newText.anchorX = 0.5
+            newText.anchorY = 0.5
+
+            group:insert(newText)
+
+            line = words[i]
+            lineCount = lineCount + 1
+        end
+    end
+
+    local lastLine = display.newText({
+        text = line,
+        x = x,
+        y = y + yOffset * (lineCount - 1),
+        font = font,
+        fontSize = fontSize,
+        align = "left"
+    })
+
+    lastLine.anchorX = 0.5
+    lastLine.anchorY = 0.5
+
+    group:insert(lastLine)
+
+    return group
+end
+
 
 local function pomoDoroSetup()
     print ("pomoDoroSetup")
@@ -224,27 +285,28 @@ local function options()
     local optionsBackground = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
     optionsBackground:setFillColor(0.2, 0.2, 0.2)
     optionsGroup:insert(optionsBackground)
-    -- create a text object to explain the default if nothing is entered, and fit the text to the screen
-    local defaultText = display.newText("Default is 25 minutes for pomodoro and 5 minutes for break", display.contentCenterX, display.contentCenterY - 400, display.contentWidth - 100, 0, native.systemFont, 50)
+    -- default time text using wrapText function
+    -- function wrapText(text, x, y, font, fontSize, maxWidth, lineSpacing)
+    local defaultText = wrapText("If nothing is entered, the default time will be 25 minutes for the pomodoro time and 5 minutes for the break time.", display.contentCenterX, display.contentCenterY - uiContentHeight * 3, native.systemFont, 35 , display.contentWidth, 2)
     optionsGroup:insert(defaultText)
-    local optionsText = display.newText("Options", display.contentCenterX, display.contentCenterY - 300, native.systemFont, 50 )
+    local optionsText = display.newText("Options", display.contentCenterX, display.contentCenterY - uiContentHeight * 2, native.systemFont, 50 )
     optionsGroup:insert(optionsText)
-    local pomodoroTimeText = display.newText("Pomodoro Time", display.contentCenterX, display.contentCenterY - 200, native.systemFont, 50)
+    local pomodoroTimeText = display.newText("Pomodoro Time", display.contentCenterX, display.contentCenterY - uiContentHeight, native.systemFont, 50)
     optionsGroup:insert(pomodoroTimeText)
-    local pomodoroTimeInput = native.newTextField(display.contentCenterX, display.contentCenterY - 100, 200, 100)
+    local pomodoroTimeInput = native.newTextField(display.contentCenterX, display.contentCenterY - uiContentHeight * 0.5, 200, 100)
     optionsGroup:insert(pomodoroTimeInput)
     local breakTimeText = display.newText("Break Time", display.contentCenterX, display.contentCenterY, native.systemFont, 50)
     optionsGroup:insert(breakTimeText)
-    local breakTimeInput = native.newTextField(display.contentCenterX, display.contentCenterY + 100, 200, 100)
+    local breakTimeInput = native.newTextField(display.contentCenterX, display.contentCenterY + uiContentHeight * 0.5, 200, 100)
     optionsGroup:insert(breakTimeInput)
-    local totalIntervalsText = display.newText("Total Intervals", display.contentCenterX, display.contentCenterY + 200, native.systemFont, 50)
+    local totalIntervalsText = display.newText("Total Intervals", display.contentCenterX, display.contentCenterY + uiContentHeight, native.systemFont, 50)
     optionsGroup:insert(totalIntervalsText)
-    local totalIntervalsInput = native.newTextField(display.contentCenterX, display.contentCenterY + 300, 200, 100)
+    local totalIntervalsInput = native.newTextField(display.contentCenterX, display.contentCenterY + uiContentHeight * 1.5, 200, 100)
     optionsGroup:insert(totalIntervalsInput)
-    local optionsDoneButton = display.newText("Done", display.contentCenterX, display.contentCenterY + 400, native.systemFont, 50)
+    local optionsDoneButton = display.newText("Done", display.contentCenterX, display.contentCenterY + uiContentHeight * 2, native.systemFont, 50)
     optionsGroup:insert(optionsDoneButton)
     --create a button to close the options screen without applying any changes, to same place as options button on main screen
-    local optionsCancelButton = display.newText("Cancel", display.contentCenterX, display.contentCenterY + 500, native.systemFont, 50)
+    local optionsCancelButton = display.newText("Cancel", display.contentCenterX, display.contentCenterY + uiContentHeight * 2.5, native.systemFont, 50)
     optionsGroup:insert(optionsCancelButton)
     optionsCancelButton:addEventListener("tap", function()
         optionsGroup:removeSelf()
