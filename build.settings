@@ -19,6 +19,7 @@ settings =
         defaultViewWidth = 640,
         defaultViewHeight = 960,
          resizable = true,
+        showRuntimeErrors = false,
     },
 }
     -- Child tables here
